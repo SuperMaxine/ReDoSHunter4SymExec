@@ -121,7 +121,7 @@ public class Main {
                         System.out.println("infix :" + bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib());
                         System.out.println("suffix :" + bean.getAttackBeanList().get(i).getSuffix().getValue());
                         System.out.println("suffix :" + bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
-                        String smtlib = "(set-logic QF_S)\n" +
+                        String smtlib = "(set-logic QF_SLIA)\n" +
                                         "(declare-const result String)\n" +
                                         "(declare-const attack String)\n" +
                                         "(declare-const prefix RegLan)\n" +
@@ -129,7 +129,7 @@ public class Main {
                                         "(declare-const postfix RegLan)\n" +
                                         "(declare-const postfixs String)\n" +
                                         "\n" +
-                                        "(assert (str.in.re attack (re.++ prefix ((_ re.loop 30 30) infix) postfix)))\n" +
+                                        "(assert (str.in.re attack (re.++ prefix ((_ re.loop "+bean.getAttackBeanList().get(i).getRepeatTimes()+" "+bean.getAttackBeanList().get(i).getRepeatTimes()+") infix) postfix)))\n" +
                                         "(assert (= prefix \n" +
                                         "    "+ bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib() +"\n" +
                                         "))\n" +
@@ -145,7 +145,7 @@ public class Main {
                                         "(check-sat)\n" +
                                         "(get-model)";
                     System.out.println("\nSMTLIB File:\n" + smtlib.replace("str.in.re", "str.in_re")
-                            .replace("str.to.re","str_to_re")
+                            .replace("str.to.re","str.to_re")
                             .replace("(re.range \"\\x30\" \"\\x39\")", "(re.range \"0\" \"9\")")
                     );
                     }

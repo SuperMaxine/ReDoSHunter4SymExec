@@ -272,16 +272,16 @@ public class RegexTranslator extends AbstractRegexTranslator {
                         smap.put(n, "(re.inter re.allchar (re.comp (re.range \"0\" \"9\")))");
                     }
                     else if (n.getLabel().equals("\\w")) {
-                        smap.put(n, "(re.union (re.range \"a\" \"z\") (re.range \"A\" \"Z\") (re.range \"0\" \"9\") \"_\")");
+                        smap.put(n, "(re.union (re.range \"a\" \"z\") (re.range \"A\" \"Z\") (re.range \"0\" \"9\") (str.to.re \"_\"))");
                     }
                     else if (n.getLabel().equals("\\W")) {
-                        smap.put(n, "(re.inter re.allchar (re.comp (re.union (re.range \"a\" \"z\") (re.range \"A\" \"Z\") (re.range \"0\" \"9\") \"_\")))");
+                        smap.put(n, "(re.inter re.allchar (re.comp (re.union (re.range \"a\" \"z\") (re.range \"A\" \"Z\") (re.range \"0\" \"9\") (str.to.re \"_\"))))");
                     }
                     else if (n.getLabel().equals("\\s")) {
-                        smap.put(n, "(re.union (re.range \"\\t\" \"\\t\") (re.range \"\\n\" \"\\n\") (re.range \"\\r\" \"\\r\") (str.to.re \" \")");
+                        smap.put(n, "(re.union (re.range \"\\t\" \"\\t\") (re.range \"\\n\" \"\\n\") (re.range \"\\r\" \"\\r\") (str.to.re \" \"))");
                     }
                     else if (n.getLabel().equals("\\S")) {
-                        smap.put(n, "(re.inter re.allchar (re.comp (re.union (str.to.re \"\\t\") (str.to.re \"\\n\") (str.to.re \"\\r\") (str.to.re \" \")))");
+                        smap.put(n, "(re.inter re.allchar (re.comp (re.union (str.to.re \"\\t\") (str.to.re \"\\n\") (str.to.re \"\\r\") (str.to.re \" \"))))");
                     }
                 } else {
                     simpleProp(n);
@@ -290,22 +290,22 @@ public class RegexTranslator extends AbstractRegexTranslator {
             case "cc_atom":
                 if (n.getChildren().size() == 0) {
                     if (n.getLabel().equals("\\s")) {
-                        smap.put(n, "(re.union (str.to.re \"\\t\") (str.to.re \"\\n\") (str.to.re \"\\r\") (str.to.re \" \")");
+                        smap.put(n, "(re.union (str.to.re \"\\t\") (str.to.re \"\\n\") (str.to.re \"\\r\") (str.to.re \" \"))");
                     }
                     else if (n.getLabel().equals("\\S")) {
-                        smap.put(n, "(re.inter re.allchar (re.comp (re.union (str.to.re \"\\t\") (str.to.re \"\\n\") (str.to.re \"\\r\") (str.to.re \" \")))");
+                        smap.put(n, "(re.inter re.allchar (re.comp (re.union (str.to.re \"\\t\") (str.to.re \"\\n\") (str.to.re \"\\r\") (str.to.re \" \"))))");
                     }
                     else if (n.getLabel().equals("\\d")) {
                         smap.put(n, "(re.range \"0\" \"9\")");
                     }
                     else if (n.getLabel().equals("\\D")) {
-                        smap.put(n, "(re.inter re.allchar (re.comp (re.range \"0\" \"9\"))");
+                        smap.put(n, "(re.inter re.allchar (re.comp (re.range \"0\" \"9\")))");
                     }
                     else if (n.getLabel().equals("\\w")) {
-                        smap.put(n, "(re.union (re.range \"a\" \"z\") (re.range \"A\" \"Z\") (re.range \"0\" \"9\") \"_\")");
+                        smap.put(n, "(re.union (re.range \"a\" \"z\") (re.range \"A\" \"Z\") (re.range \"0\" \"9\") (str.to.re \"_\"))");
                     }
                     else if (n.getLabel().equals("\\W")) {
-                        smap.put(n, "(re.inter re.allchar (re.comp (re.union (re.range \"a\" \"z\") (re.range \"A\" \"Z\") (re.range \"0\" \"9\") \"_\"))");
+                        smap.put(n, "(re.inter re.allchar (re.comp (re.union (re.range \"a\" \"z\") (re.range \"A\" \"Z\") (re.range \"0\" \"9\") (str.to.re \"_\"))))");
                     }
                 } else if (n.getChildren().size() == 1) {
                     simpleProp(n);
