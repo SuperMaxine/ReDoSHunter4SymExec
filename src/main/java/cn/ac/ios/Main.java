@@ -131,13 +131,13 @@ public class Main {
                                         "\n" +
                                         "(assert (str.in.re attack (re.++ prefix ((_ re.loop "+bean.getAttackBeanList().get(i).getRepeatTimes()+" "+bean.getAttackBeanList().get(i).getRepeatTimes()+") infix) postfix)))\n" +
                                         "(assert (= prefix \n" +
-                                        "    "+ bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib() +"\n" +
+                                        "    "+ ((bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib().isEmpty())?"(str.to_re \"\")":bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib()) +"\n" +
                                         "))\n" +
                                         "(assert (= infix \n" +
-                                        "        "+ bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib() + "\n" +
+                                        "        "+ ((bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib().isEmpty()?"(str.to_re \"\")":bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib())) + "\n" +
                                         "))\n" +
                                         "(assert (= postfix \n" +
-                                        "        "+ bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib() + "\n" +
+                                        "        "+ ((bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib().isEmpty()?"(str.to_re \"\")":bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib())) + "\n" +
                                         "))\n" +
                                         "(assert (str.in.re postfixs postfix))\n" +
                                         "(assert (>= (str.len postfixs) 1))\n" +
