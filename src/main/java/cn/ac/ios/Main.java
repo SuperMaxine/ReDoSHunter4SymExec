@@ -121,30 +121,33 @@ public class Main {
                         System.out.println("infix :" + bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib());
                         System.out.println("suffix :" + bean.getAttackBeanList().get(i).getSuffix().getValue());
                         System.out.println("suffix :" + bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
-                        System.out.println("\nSMTLIB File:\n" +
-                                "(set-logic QF_S)\n" +
-                                "(declare-const result String)\n" +
-                                "(declare-const attack String)\n" +
-                                "(declare-const prefix RegLan)\n" +
-                                "(declare-const infix RegLan)\n" +
-                                "(declare-const postfix RegLan)\n" +
-                                "(declare-const postfixs String)\n" +
-                                "\n" +
-                                "(assert (str.in.re attack (re.++ prefix ((_ re.loop 30 30) infix) postfix)))\n" +
-                                "(assert (= prefix \n" +
-                                "    "+ bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib() +"\n" +
-                                "))\n" +
-                                "(assert (= infix \n" +
-                                "        "+ bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib() + "\n" +
-                                "))\n" +
-                                "(assert (= postfix \n" +
-                                "        "+ bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib() + "\n" +
-                                "))\n" +
-                                "(assert (str.in.re postfixs postfix))\n" +
-                                "(assert (>= (str.len postfixs) 1))\n" +
-                                "(assert (= result (str.++ attack postfixs)))\n" +
-                                "(check-sat)\n" +
-                                "(get-model)");
+                        String smtlib = "(set-logic QF_S)\n" +
+                                        "(declare-const result String)\n" +
+                                        "(declare-const attack String)\n" +
+                                        "(declare-const prefix RegLan)\n" +
+                                        "(declare-const infix RegLan)\n" +
+                                        "(declare-const postfix RegLan)\n" +
+                                        "(declare-const postfixs String)\n" +
+                                        "\n" +
+                                        "(assert (str.in.re attack (re.++ prefix ((_ re.loop 30 30) infix) postfix)))\n" +
+                                        "(assert (= prefix \n" +
+                                        "    "+ bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib() +"\n" +
+                                        "))\n" +
+                                        "(assert (= infix \n" +
+                                        "        "+ bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib() + "\n" +
+                                        "))\n" +
+                                        "(assert (= postfix \n" +
+                                        "        "+ bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib() + "\n" +
+                                        "))\n" +
+                                        "(assert (str.in.re postfixs postfix))\n" +
+                                        "(assert (>= (str.len postfixs) 1))\n" +
+                                        "(assert (= result (str.++ attack postfixs)))\n" +
+                                        "(check-sat)\n" +
+                                        "(get-model)";
+                    System.out.println("\nSMTLIB File:\n" + smtlib.replace("str.in.re", "str.in_re")
+                            .replace("str.to.re","str_to_re")
+                            .replace("(re.range \"\\x30\" \"\\x39\")", "(re.range \"0\" \"9\")")
+                    );
                     }
                 }
             } else {
