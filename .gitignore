@@ -7,3 +7,7 @@ data/small/prism_results.txt
 data/small/corpus_results.txt
 regexploit/
 rxxr2/
+CVE攻击串生成
+output_old
+*.zip
+output

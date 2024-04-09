@@ -37,7 +37,7 @@ public class SmtEscape implements EscapingFunction {
 
     @Override
     public String charEscape(int c) {
-        return String.format("\\x%02x", c);
+        return String.format("\\u{%02x}", c);
     }
 
     @Override
