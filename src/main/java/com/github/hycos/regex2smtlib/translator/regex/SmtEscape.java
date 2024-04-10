@@ -48,6 +48,9 @@ public class SmtEscape implements EscapingFunction {
         StringBuilder out = new StringBuilder();
 
         char carr[] = input.toCharArray();
+        if (carr.length == 2 && carr[0] == '\\') {
+            return charEscape(carr[1]) + "";
+        }
         for(int k = 0; k < carr.length; k ++) {
             out.append(charEscape(carr[k]));
         }

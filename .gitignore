@@ -11,3 +11,4 @@ CVE攻击串生成
 output_old
 *.zip
 output
+out/artifacts/ReDoSHunter_jar/ReDoSHunter.jar

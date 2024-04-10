@@ -143,13 +143,16 @@ public class Main {
 //                        System.out.println("suffix :" + bean.getAttackBeanList().get(i).getSuffix().getValue());
 //                        System.out.println("suffix :" + bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
                         try {
+                            String prefixSMT = bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib();
+                            String infixSMT = bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib();
+                            String suffixSMT = bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib();
                             String result = "Attack String :" + bean.getAttackBeanList().get(i).getAttackStringFormat() + "\n" +
                                     "prefix :" + bean.getAttackBeanList().get(i).getPrefix().getValue() + "\n" +
-                                    "prefix :" + bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib() + "\n" +
+                                    "prefix :" + prefixSMT + "\n" +
                                     "infix :" + bean.getAttackBeanList().get(i).getInfix().getValue() + "\n" +
-                                    "infix :" + bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib() + "\n" +
+                                    "infix :" + infixSMT + "\n" +
                                     "suffix :" + bean.getAttackBeanList().get(i).getSuffix().getValue() + "\n" +
-                                    "suffix :" + bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib();
+                                    "suffix :" + suffixSMT;
                             System.out.println(result);
                             String smtlib = "(set-logic QF_SLIA)\n" +
                                     "(declare-const result String)\n" +
@@ -161,13 +164,13 @@ public class Main {
                                     "\n" +
                                     "(assert (str.in.re attack (re.++ prefix ((_ re.loop " + bean.getAttackBeanList().get(i).getRepeatTimes() + " " + bean.getAttackBeanList().get(i).getRepeatTimes() + ") infix) postfix)))\n" +
                                     "(assert (= prefix \n" +
-                                    "    " + ((bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib().isEmpty()) ? "(str.to_re \"\")" : bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib()) + "\n" +
+                                    "    " + ((prefixSMT.isEmpty()) ? "(str.to_re \"\")" : prefixSMT) + "\n" +
                                     "))\n" +
                                     "(assert (= infix \n" +
-                                    "        " + ((bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib().isEmpty() ? "(str.to_re \"\")" : bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib())) + "\n" +
+                                    "        " + ((infixSMT.isEmpty() ? "(str.to_re \"\")" : infixSMT)) + "\n" +
                                     "))\n" +
                                     "(assert (= postfix \n" +
-                                    "        " + ((bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib().isEmpty() ? "(str.to_re \"\")" : bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib())) + "\n" +
+                                    "        " + ((suffixSMT.isEmpty() ? "(str.to_re \"\")" : suffixSMT)) + "\n" +
                                     "))\n" +
                                     "(assert (str.in.re postfixs postfix))\n" +
                                     "(assert (>= (str.len postfixs) 1))\n" +
