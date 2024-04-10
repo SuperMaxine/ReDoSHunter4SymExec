@@ -222,7 +222,7 @@ public class RegexTranslator extends AbstractRegexTranslator {
                                 smin += " " + smap.get(first);
                                 smin += StringUtils.repeat(")", min - 1);
                             } else if (min <= 0) {
-                                smin += "\"\"";
+                                smin += "(str.to_re \"\")";
                             }
 
 
