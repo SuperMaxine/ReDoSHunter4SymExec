@@ -63,12 +63,20 @@ public abstract class AbstractRegexTranslator extends ParseTreeProcessor <String
     public String createBinaryExpression(String exp, List<ParseTreeNode> nodes) {
         String out = "";
 
+        // 创建一个int用作右括号计数器
+        int rightBracketCounter = 0;
         if(nodes.size() > 1) {
             for (int i = 0; i <= nodes.size()-2; i++) {
+                String tmp = smap.get(nodes.get(i));
+                if (tmp.equals("")) {
+                    continue;
+                }
                 out += " (" + exp + " " + smap.get(nodes.get(i));
+                rightBracketCounter++;
             }
             out += " " + smap.get(nodes.get(nodes.size()-1));
-            out += StringUtils.repeat(")", nodes.size() - 1);
+//            out += StringUtils.repeat(")", nodes.size() - 1);
+            out += StringUtils.repeat(")", rightBracketCounter);
         } else if (nodes.size() == 1){
             out = smap.get(nodes.get(0));
         }
