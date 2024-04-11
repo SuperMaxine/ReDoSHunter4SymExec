@@ -81,8 +81,10 @@ public class SmtNode{
         }
 
         if (next != null) {
+            sb.insert(0, "(re.++ ");
             sb.append(" ");
             sb.append(next.toSmtLib());
+            sb.append(")");
         }
 
         return sb.toString();
