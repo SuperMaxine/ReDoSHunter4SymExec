@@ -78,7 +78,6 @@ public abstract class AbstractRegexTranslator extends ParseTreeProcessor <String
                     out += " (" + exp + " " + smap.get(nodes.get(i));
                     rightBracketCounter++;
                 }
-                rightBracketCounter++;
             }
             out += " " + smap.get(nodes.get(nodes.size()-1));
 //            out += StringUtils.repeat(")", nodes.size() - 1);
