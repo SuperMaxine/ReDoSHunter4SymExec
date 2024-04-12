@@ -95,7 +95,7 @@ public class Main {
         for (int i = 0; i < regexList.size(); i++) {
             String regex = regexList.get(i);
             int id = i;
-//            if (id != 10) continue;
+//            if (id != 9) continue;
             System.out.println("id: " + id + " regex: " + regex);
             getResult(id, regex);
         }

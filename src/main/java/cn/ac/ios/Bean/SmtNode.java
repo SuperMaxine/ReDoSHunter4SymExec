@@ -81,10 +81,17 @@ public class SmtNode{
         }
 
         if (next != null) {
-            sb.insert(0, "(re.++ ");
-            sb.append(" ");
-            sb.append(next.toSmtLib());
-            sb.append(")");
+            String nextString = next.toSmtLib();
+            // 如果sb不为空，添加concat
+            if (sb.length() > 0 && !nextString.isEmpty()) {
+                sb.insert(0, "(re.++ ");
+                sb.append(" ");
+                sb.append(nextString);
+                sb.append(")");
+            }
+            else {
+                sb.append(nextString);
+            }
         }
 
         return sb.toString();
