@@ -32,10 +32,8 @@ import com.github.hycos.regex2smtlib.translator.exception.TranslationException;
 import com.ibm.icu.impl.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.trimou.Mustache;
 import org.trimou.engine.MustacheEngine;
 import org.trimou.engine.MustacheEngineBuilder;
-import org.trimou.engine.locator.ClassPathTemplateLocator;
 import org.trimou.engine.locator.TemplateLocator;
 
 import java.io.Reader;
