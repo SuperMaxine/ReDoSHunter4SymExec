@@ -54,46 +54,43 @@ public class SmtNode{
         return sb.toString();
     }
 
-    public String toSmtLib() {
+    public ArrayList<Pair<String, ArrayList<String>>> toSmtLib() {
+        ArrayList<Pair<String, ArrayList<String>>> result = new ArrayList<>();
+
         StringBuilder sb = new StringBuilder();
+        ArrayList<String> sbRegexes = new ArrayList<>();
 
         // 如果当前正则数组为1，直接生成正则对应的SMT-LIB表达式
         if (intersectionRegexes.size() == 1) {
-            try {
-                String regexsmt = Translator.INSTANCE.translate("cvc4", intersectionRegexes.get(0));
-                // System.out.println(regexsmt);
-                sb.append(regexsmt);
-            } catch (FormatNotAvailableException | TranslationException e) {
-                throw new RuntimeException(e);
-            }
+            ;
         } else {
             // 如果当前正则数组大于1，生成交集表达式
             sb.append("(re.inter ");
             for (String regex : intersectionRegexes) {
                 try {
                     String regexsmt = Translator.INSTANCE.translate("cvc4", regex);
+                    // 如果regexsmt中含有"re.inter"，return new ArrayList<>();
+                    if (regexsmt.contains("re.inter") || regexsmt.contains("re.comp")) {
+                        return new ArrayList<>();
+                    }
                     sb.append(regexsmt).append(" ");
                 } catch (FormatNotAvailableException | TranslationException e) {
                     throw new RuntimeException(e);
                 }
             }
             sb.append(")");
+
+            sbRegexes.addAll(intersectionRegexes);
+
+            result.add(new Pair<>(sb.toString(), sbRegexes));
         }
 
         if (next != null) {
-            String nextString = next.toSmtLib();
-            // 如果sb不为空，添加concat
-            if (sb.length() > 0 && !nextString.isEmpty()) {
-                sb.insert(0, "(re.++ ");
-                sb.append(" ");
-                sb.append(nextString);
-                sb.append(")");
-            }
-            else {
-                sb.append(nextString);
-            }
+            ArrayList<Pair<String, ArrayList<String>>> nextStrings = next.toSmtLib();
+            result.addAll(nextStrings);
         }
 
-        return sb.toString();
+        return result;
     }
+
 }
