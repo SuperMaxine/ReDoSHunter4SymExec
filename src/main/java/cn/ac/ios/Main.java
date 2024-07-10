@@ -88,6 +88,8 @@ public class Main {
 
         //从文件中逐行读取正则表达式
         // String filePath = "cve414.txt";
+        // String filePath = "cve414.txt";
+        // String filePath = "regexlib.txt";
         String filePath = "regexlib.txt";
         List<String> regexList = new ArrayList<>();
         try {
@@ -98,7 +100,7 @@ public class Main {
         for (int i = 0; i < regexList.size(); i++) {
             String regex = regexList.get(i);
             int id = i;
-           // if (id != 69) continue;
+           if (id != 121) continue;
             System.out.println("id: " + id + " regex: " + regex);
             getResult(id, regex);
         }

@@ -35,8 +35,10 @@ public class Test {
         // String fileName = "regexlib.txt";
         // run(filePath + "/" + fileName, fileName);
         // String realfileName = "cve414_short.txt";
-        // String realfileName = "regexlib.txt";
-        String realfileName = "snort4.txt";
+        // String realfileName = "regexlib2.txt";
+        // String realfileName = "snort4.txt";
+        // 从第一个命令行参数中读取文件名
+        String realfileName = args[0];
         // 创建一个output文件夹
         File file = new File(realfileName.replace(".txt", "") + "_output");
         if (!file.exists()) {

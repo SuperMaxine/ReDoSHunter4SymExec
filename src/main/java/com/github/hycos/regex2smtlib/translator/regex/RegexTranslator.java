@@ -52,11 +52,12 @@ public class RegexTranslator extends AbstractRegexTranslator {
 
     private static String anyCharExceptNewline = charClass2Smtlib(".");
     private static String digitChars = charClass2Smtlib("\\d");
+    // private static String digitChars = "(re.range \"0\" \"9\")";
     private static String notDigitChars = charClass2Smtlib("\\D");
     private static String horizontalWhiteSpaceChars = charClass2Smtlib("\\h");
     private static String notHorizontalWhiteSpaceChars = charClass2Smtlib("\\H");
     private static String newlineChars = charClass2Smtlib("\\R");
-    private static String notNewlineChars = charClass2Smtlib("\\N");
+    // private static String notNewlineChars = charClass2Smtlib("\\N");
     private static String whiteSpaceChars = charClass2Smtlib("\\s");
     private static String notWhiteSpaceChars = charClass2Smtlib("\\S");
     private static String verticalWhiteSpaceChars = charClass2Smtlib("\\v");
@@ -107,7 +108,7 @@ public class RegexTranslator extends AbstractRegexTranslator {
         int lastMatched = -1;
         String charClassInSmtlib = "";
         // for (int i = 0; i <= 0x10FFFF; i++) {
-        for (int i = 0; i <= 0x10FFFF; i++) {
+        for (int i = 0; i <= 0xFF; i++) {
             String s = new String(Character.toChars(i));
             Matcher matcher = pattern.matcher(s);
             if (matcher.matches()) {
@@ -238,7 +239,7 @@ public class RegexTranslator extends AbstractRegexTranslator {
                         LOGGER.debug("lbl is {}", lbl);
                         int min = -1;
                         int max = -1;
-                        Pattern pattern = Pattern.compile("\\{([0-9]*),?" +
+                        Pattern pattern = Pattern.compile("\\{([0-9]*)(,)?" +
                                 "([0-9]+)?\\}");
                         Matcher matcher = pattern.matcher(lbl);
 
@@ -249,11 +250,12 @@ public class RegexTranslator extends AbstractRegexTranslator {
 
                             String grp1 = matcher.group(1);
                             String grp2 = matcher.group(2);
+                            String grp3 = matcher.group(3);
                             if (grp1 != null && !grp1.isEmpty()) {
                                 min = Integer.parseInt(grp1);
                             }
-                            if (grp2 != null && !grp2.isEmpty()) {
-                                max = Integer.parseInt(grp2);
+                            if (grp3 != null && !grp2.isEmpty()) {
+                                max = Integer.parseInt(grp3);
                             }
 
 
@@ -265,7 +267,7 @@ public class RegexTranslator extends AbstractRegexTranslator {
                                 for (int i = 1; i < min; i++) {
                                     smin += " (" + tmap.get(CONCAT) + " " + smap
                                             .get
-                                            (first);
+                                                    (first);
                                 }
                                 smin += " " + smap.get(first);
                                 smin += StringUtils.repeat(")", min - 1);
@@ -281,13 +283,24 @@ public class RegexTranslator extends AbstractRegexTranslator {
                                             unroll;
                                     unroll = " (" + tmap.get(CONCAT) + " " +
                                             this
-                                            .smap.get(first) + "  " + unroll + ")";
+                                                    .smap.get(first) + "  " + unroll + ")";
                                 }
                                 sran += " " + unroll;
                                 sran += StringUtils.repeat(")", max - min);
                             } else if (max <= 0) {
-                                sran = " (" + tmap.get(CONCAT) + " " + smin +
-                                        " (" + tmap.get(STAR) + " " + smin + " " + "))";
+                                if (grp2 != null && !grp2.isEmpty()) {
+                                    if (min <= 0) { // {0,} = a*
+                                        sran = " (" + tmap.get(STAR) + " " + smap
+                                                .get(first) + " )";
+                                    }
+                                    else { // a{m,} = a{m} a*
+                                        sran = " (" + tmap.get(CONCAT) + " " + smin +
+                                                " (" + tmap.get(STAR) + " " + smin + " " + "))";
+                                    }
+                                } else {
+                                    // a{m} = a a a ... a
+                                    sran = smin;
+                                }
                             }
 
 
@@ -305,7 +318,7 @@ public class RegexTranslator extends AbstractRegexTranslator {
             case "shared_literal":
                 String label = " (" + tmap.get(CONV) + " " + "\"" + esc(n
                         .getLabel
-                        ()) + "\")";
+                                ()) + "\")";
                 this.smap.put(n,label);
                 break;
             case "atom":
@@ -326,9 +339,9 @@ public class RegexTranslator extends AbstractRegexTranslator {
                     else if (n.getLabel().equals("\\H")) {
                         smap.put(n, notHorizontalWhiteSpaceChars);
                     }
-                    else if (n.getLabel().equals("\\N")) {
-                        smap.put(n, notNewlineChars);
-                    }
+                    // else if (n.getLabel().equals("\\N")) {
+                    //     smap.put(n, notNewlineChars);
+                    // }
                     else if (n.getLabel().equals("\\R")) {
                         smap.put(n, newlineChars);
                     }
@@ -378,9 +391,9 @@ public class RegexTranslator extends AbstractRegexTranslator {
                     else if (n.getLabel().equals("\\H")) {
                         smap.put(n, notHorizontalWhiteSpaceChars);
                     }
-                    else if (n.getLabel().equals("\\N")) {
-                        smap.put(n, notNewlineChars);
-                    }
+                    // else if (n.getLabel().equals("\\N")) {
+                    //     smap.put(n, notNewlineChars);
+                    // }
                     else if (n.getLabel().equals("\\R")) {
                         smap.put(n, newlineChars);
                     }
@@ -432,15 +445,17 @@ public class RegexTranslator extends AbstractRegexTranslator {
                     }
                     cc += " " + this.smap.get(n.getChildren().get(i));
                     cc += StringUtils.repeat(")", n.getChildren().size()-1);
-                    // 如果n的label第二位是^，则取反
-                    if (n.getLabel().charAt(1) == '^') {
-                        cc = "(re.comp " + cc + ")";
-                    }
                     smap.put(n, cc);
+                }
+                // 如果n的label第二位是^，则取反
+                if (n.getLabel().charAt(1) == '^') {
+                    smap.replace(n, "(re.comp " + smap.get(n) + ")");
                 }
                 break;
         }
-
+        // String s1 = n.getLabel();
+        // String s2 = smap.get(n);
+        // System.out.println(s1 + " ::: " + s2);
     }
 
     private String esc(String s) {
