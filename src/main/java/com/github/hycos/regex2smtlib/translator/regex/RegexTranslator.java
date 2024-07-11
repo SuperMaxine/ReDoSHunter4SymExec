@@ -125,6 +125,16 @@ public class RegexTranslator extends AbstractRegexTranslator {
             }
         }
         charClassInSmtlib += " " + String.format("\"\\u{%02x}\"", lastMatched) + ")";
+        // 如果charClassInSmtlib为空，说明正则表达式匹配不到任何字符，返回空字符
+        if (charClassInSmtlib.equals("")) {
+            return "(str.to_re \"\")";
+        }
+        // 对"re.range"进行计数，如果charClassInSmtlib只有一个字符，直接返回这个字符
+        int rangeCount = charClassInSmtlib.split("re.range").length - 1;
+        if (rangeCount == 1) {
+            return charClassInSmtlib;
+        }
+
         charClassInSmtlib = "(re.union " + charClassInSmtlib + ")";
 
         // System.out.println(charClassInSmtlib);
@@ -234,6 +244,17 @@ public class RegexTranslator extends AbstractRegexTranslator {
                                     lbl = "{0,1}";
                                 }
                                 break;
+                            case "??":
+
+                                if(tmap.has(OPT)) {
+                                    String opt = "(" + tmap.get(OPT) + " " + smap
+                                            .get(first) + " )";
+                                    smap.put(n, opt);
+                                } else {
+                                    lbl = "{0,1}";
+                                }
+                                break;
+
                         }
 
                         LOGGER.debug("lbl is {}", lbl);
@@ -319,6 +340,15 @@ public class RegexTranslator extends AbstractRegexTranslator {
                 String label = " (" + tmap.get(CONV) + " " + "\"" + esc(n
                         .getLabel
                                 ()) + "\")";
+                if (n.getLabel().equals("\\r")) {
+                    label = " (str.to_re \"\\u{0D}\")";
+                }
+                else if (n.getLabel().equals("\\n")) {
+                    label = " (str.to_re \"\\u{0A}\")";
+                }
+                else if (n.getLabel().equals("\\t")) {
+                    label = " (str.to_re \"\\u{09}\")";
+                }
                 this.smap.put(n,label);
                 break;
             case "atom":

@@ -47,63 +47,65 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
-//        try {
-//            String regexsmt = Translator.INSTANCE.translate("cvc4", "00[\\sabc\\S]*＆～(\\d+)");
-//            System.out.println(regexsmt);
-//        } catch (FormatNotAvailableException | TranslationException e) {
-//            throw new RuntimeException(e);
-//        }
+       try {
+           String regexsmt = Translator.INSTANCE.translate("cvc4", "\\n");
+           System.out.println(regexsmt);
+       } catch (FormatNotAvailableException | TranslationException e) {
+           throw new RuntimeException(e);
+       }
 
-        Logger.getGlobal().setLevel(Level.OFF);
-        commandLineSettings = new HashMap<>();
-        for (String arg : args) {
-            if (arg.contains(HELP_FLAG)) {
-                printUsage();
-                System.exit(0);
-            }
-            if (arg.startsWith("-")) {
-                if (arg.contains("=")) {
-                    int settingLastIndex = arg.indexOf("=");
-                    String settingName = arg.substring(0, settingLastIndex);
-                    String settingValue = arg.substring(settingLastIndex + 1);
-                    commandLineSettings.put(settingName, settingValue);
-                }
-            }
-        }
+        return;
 
-
-//        String version = System.getProperty("java.version");
-//        if (!(version.startsWith("1.8") || version.startsWith("1.7") || version.startsWith("1.6"))) {
-//            System.out.println("Warning: The current Java version(" + version + ") is not support,please use Java(8)");
-//            System.exit(0);
-//        }
-
-
-//        System.out.println("please input regex ");
-//        Scanner scanner = new Scanner(System.in);
-//        String regex = scanner.nextLine();
-//        System.out.println("input:" + regex);
+//         Logger.getGlobal().setLevel(Level.OFF);
+//         commandLineSettings = new HashMap<>();
+//         for (String arg : args) {
+//             if (arg.contains(HELP_FLAG)) {
+//                 printUsage();
+//                 System.exit(0);
+//             }
+//             if (arg.startsWith("-")) {
+//                 if (arg.contains("=")) {
+//                     int settingLastIndex = arg.indexOf("=");
+//                     String settingName = arg.substring(0, settingLastIndex);
+//                     String settingValue = arg.substring(settingLastIndex + 1);
+//                     commandLineSettings.put(settingName, settingValue);
+//                 }
+//             }
+//         }
 //
-//        getResult(regex);
-
-        //从文件中逐行读取正则表达式
-        // String filePath = "cve414.txt";
-        // String filePath = "cve414.txt";
-        // String filePath = "regexlib.txt";
-        String filePath = "regexlib.txt";
-        List<String> regexList = new ArrayList<>();
-        try {
-            regexList = readFile(filePath);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        for (int i = 0; i < regexList.size(); i++) {
-            String regex = regexList.get(i);
-            int id = i;
-           if (id != 121) continue;
-            System.out.println("id: " + id + " regex: " + regex);
-            getResult(id, regex);
-        }
+//
+// //        String version = System.getProperty("java.version");
+// //        if (!(version.startsWith("1.8") || version.startsWith("1.7") || version.startsWith("1.6"))) {
+// //            System.out.println("Warning: The current Java version(" + version + ") is not support,please use Java(8)");
+// //            System.exit(0);
+// //        }
+//
+//
+// //        System.out.println("please input regex ");
+// //        Scanner scanner = new Scanner(System.in);
+// //        String regex = scanner.nextLine();
+// //        System.out.println("input:" + regex);
+// //
+// //        getResult(regex);
+//
+//         //从文件中逐行读取正则表达式
+//         // String filePath = "cve414.txt";
+//         // String filePath = "cve414_short.txt";
+//         // String filePath = "regexlib.txt";
+//         String filePath = "regexlib.txt";
+//         List<String> regexList = new ArrayList<>();
+//         try {
+//             regexList = readFile(filePath);
+//         } catch (Exception e) {
+//             e.printStackTrace();
+//         }
+//         for (int i = 0; i < regexList.size(); i++) {
+//             String regex = regexList.get(i);
+//             int id = i;
+//            if (id != 121) continue;
+//             System.out.println("id: " + id + " regex: " + regex);
+//             getResult(id, regex);
+//         }
     }
 
 
