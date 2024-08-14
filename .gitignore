@@ -12,3 +12,7 @@ output_old
 *.zip
 output
 out/artifacts/ReDoSHunter_jar/ReDoSHunter.jar
+cve414_short_output_old/
+data/
+*.jar
+cve414_short.txt
