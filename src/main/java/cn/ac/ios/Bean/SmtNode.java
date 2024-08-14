@@ -105,7 +105,10 @@ public class SmtNode{
             }
             sb.append(")");
 
-            sbRegexes.addAll(intersectionRegexes);
+            // sbRegexes.addAll(intersectionRegexes);
+            for (String r : intersectionRegexes) {
+                sbRegexes.add(r.replace("\n","\\n").replace("\r","\\r"));
+            }
 
             result.add(new Pair<>(sb.toString(), sbRegexes));
         }
