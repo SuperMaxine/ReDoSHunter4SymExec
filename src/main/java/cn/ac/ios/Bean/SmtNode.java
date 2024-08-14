@@ -4,6 +4,7 @@ import com.github.hycos.regex2smtlib.Translator;
 import com.github.hycos.regex2smtlib.translator.exception.FormatNotAvailableException;
 import com.github.hycos.regex2smtlib.translator.exception.TranslationException;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,46 +55,109 @@ public class SmtNode{
         return sb.toString();
     }
 
-    public String toSmtLib() {
+    public ArrayList<Pair<String, ArrayList<String>>> toSmtLib() throws TranslationException, FormatNotAvailableException {
+        ArrayList<Pair<String, ArrayList<String>>> result = new ArrayList<>();
+
         StringBuilder sb = new StringBuilder();
+        ArrayList<String> sbRegexes = new ArrayList<>();
 
         // 如果当前正则数组为1，直接生成正则对应的SMT-LIB表达式
         if (intersectionRegexes.size() == 1) {
-            try {
-                String regexsmt = Translator.INSTANCE.translate("cvc4", intersectionRegexes.get(0));
-                // System.out.println(regexsmt);
-                sb.append(regexsmt);
-            } catch (FormatNotAvailableException | TranslationException e) {
-                throw new RuntimeException(e);
-            }
+            ;
         } else {
             // 如果当前正则数组大于1，生成交集表达式
-            sb.append("(re.inter ");
+            // sb.append("(re.inter ");
+            ArrayList<String> smtlibForSingleRegexes = new ArrayList<>();
             for (String regex : intersectionRegexes) {
-                try {
-                    String regexsmt = Translator.INSTANCE.translate("cvc4", regex);
-                    sb.append(regexsmt).append(" ");
-                } catch (FormatNotAvailableException | TranslationException e) {
-                    throw new RuntimeException(e);
+                if (regex.contains("＆") || regex.contains("～")) {
+                    return new ArrayList<>();
+                }
+                String regexsmt = Translator.INSTANCE.translate("cvc4", regex);
+                // String regexsmt = getSMTLIB(regex);
+                // 如果regexsmt中含有"re.inter"，return new ArrayList<>();
+                // if (regexsmt.contains("re.inter") || regexsmt.contains("re.comp")) {
+                //     return new ArrayList<>();
+                // }
+
+                // sb.append(regexsmt).append(" ");
+
+                smtlibForSingleRegexes.add(regexsmt);
+            }
+            // sb.append(")");
+            int nonEmptyCount = 0;
+            for (String regex : smtlibForSingleRegexes) {
+                if (!regex.equals("")) {
+                    nonEmptyCount++;
+                }
+            }
+            if (nonEmptyCount == 0) {
+                return new ArrayList<>();
+            }
+            else if (nonEmptyCount == 1) {
+                smtlibForSingleRegexes.add("(str.to.re \"\")");
+            }
+
+            sb.append("(re.inter ");
+            for (String regex : smtlibForSingleRegexes) {
+                if (!regex.equals("")) {
+                    sb.append(regex).append(" ");
                 }
             }
             sb.append(")");
+
+            // sbRegexes.addAll(intersectionRegexes);
+            for (String r : intersectionRegexes) {
+                sbRegexes.add(r.replace("\n","\\n").replace("\r","\\r"));
+            }
+
+            result.add(new Pair<>(sb.toString(), sbRegexes));
         }
 
         if (next != null) {
-            String nextString = next.toSmtLib();
-            // 如果sb不为空，添加concat
-            if (sb.length() > 0 && !nextString.isEmpty()) {
-                sb.insert(0, "(re.++ ");
-                sb.append(" ");
-                sb.append(nextString);
-                sb.append(")");
-            }
-            else {
-                sb.append(nextString);
-            }
+            ArrayList<Pair<String, ArrayList<String>>> nextStrings = next.toSmtLib();
+            result.addAll(nextStrings);
         }
 
-        return sb.toString();
+        return result;
     }
+
+
+    public static String getSMTLIB(String regex) {
+        String result = "";
+        try {
+            // 创建并启动进程
+            ProcessBuilder processBuilder = new ProcessBuilder("./IntersectionK");
+            processBuilder.redirectErrorStream(true); // 将错误输出和标准输出合并
+            Process process = processBuilder.start();
+
+            // 通过进程的输出流向其标准输入写入数据
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            writer.write(regex);
+            writer.newLine();
+            writer.flush();
+            writer.close(); // 完成写入后需要关闭流
+
+            // 读取进程的输出
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // System.out.println(line);
+                result += line;
+            }
+            reader.close();
+
+
+            // 等待进程结束
+            int exitCode = process.waitFor();
+            // System.out.println("Exited with code: " + exitCode);
+            // 如果进程错误退出，抛出异常
+            if (exitCode != 0) {
+                throw new RuntimeException("Process exited with error code " + exitCode);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 }

@@ -1,9 +1,6 @@
 package cn.ac.ios;
 
-import cn.ac.ios.Bean.Attack;
-import cn.ac.ios.Bean.AttackBean;
-import cn.ac.ios.Bean.Output;
-import cn.ac.ios.Bean.ReDoSBean;
+import cn.ac.ios.Bean.*;
 import cn.ac.ios.Utils.multithread.ITask;
 import cn.ac.ios.Utils.multithread.MultiBaseBean;
 import cn.ac.ios.Utils.multithread.MultiThreadUtils;
@@ -15,6 +12,9 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -31,13 +31,24 @@ import static cn.ac.ios.Utils.Utils.readFile;
  */
 public class Test {
     public static void main(String[] args) throws IOException {
-        String filePath = "data/paper_dataset";
-        String fileName = "regexlib.txt";
-        run(filePath + "/" + fileName, fileName);
+        // String filePath = "data/paper_dataset";
+        // String fileName = "regexlib.txt";
+        // run(filePath + "/" + fileName, fileName);
+        // String realfileName = "cve414_short.txt";
+        // String realfileName = "regexlib2.txt";
+        // String realfileName = "snort4.txt";
+        // 从第一个命令行参数中读取文件名
+        String realfileName = args[0];
+        // 创建一个output文件夹
+        File file = new File(realfileName.replace(".txt", "") + "_output");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        run(realfileName, realfileName);
     }
 
     private static void run(String s, String fileName) {
-        run(s, fileName, "s", "java", "11111", 0, 15, 1, 60);
+        run(s, fileName, "m", "java", "11111", 0, 71, 71, 60);
     }
 
     public static void run(String sourceFile, String outfileName, String model, String language, String patternModel, int funcType, int checkThreadCount, int validateThreadCount, int timeout) {
@@ -84,7 +95,10 @@ public class Test {
         list2.add("real validate time = " + (validateEndTime - checkEndTime) / 1000 + "(s)");
         list2.add("real average time = " + (validateEndTime - startTime) / 1000 / (double) tasksData.size() + "(s)");
 
+        String outputDir = outfileName.replace(".txt", "") + "_output";
+
         for (ReDoSBean bean : resultBeans) {
+            int regexId = bean.getRegexID();
             list.add("id:" + String.valueOf(bean.getRegexID()));
             list.add(bean.getRegex());
             if (bean.isReDoS()) {
@@ -107,10 +121,117 @@ public class Test {
                             list2.add("vulnerability Source: " + bean.getAttackBeanList().get(i).getVulnerabilityRegexSource());
                             flag = false;
                         }
+
+                        try {
+                            int validateId = validateBeans.getData().indexOf(bean);
+                            int attackId = i;
+
+                            ArrayList<Pair<String, ArrayList<String>>> allSMTsAndRegexes = new ArrayList<>();
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib());
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib());
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
+
+                            int SMTCount = 0;
+
+                            // ArrayList<Pair<String, ArrayList<String>>> test = new ArrayList<>();
+                            // test.addAll(bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib());
+                            // test.addAll(bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib());
+                            // test.addAll(bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
+
+                            for (Pair<String, ArrayList<String>> pair : allSMTsAndRegexes) {
+                                // System.out.println(pair.getKey() + " : " + pair.getValue());
+                                String smtlib = "(set-logic QF_S)\n" +
+                                        "(declare-const x String)\n" +
+                                        "(assert (str.in.re x " + pair.getKey() + "))\n" +
+                                        "(check-sat)\n" +
+                                        "(get-model)";
+                                String regexes = "";
+                                for (int j = 0; j < pair.getValue().size() - 1; j++) {
+                                    regexes += pair.getValue().get(j) + "\n";
+                                }
+                                regexes += pair.getValue().get(pair.getValue().size() - 1);
+
+                                String smtlibFile = outputDir + "/" + regexId + "_" + validateId + "_" + attackId + "_" + SMTCount + ".smt2";
+                                String regexFile = outputDir + "/" + regexId + "_" + validateId + "_" + attackId + "_" + SMTCount + ".txt";
+                                //写入smtlib文件
+                                try {
+                                    Files.write(Path.of(smtlibFile), smtlib.getBytes(StandardCharsets.UTF_8));
+                                    System.out.println("SMTLIB文件已写入: " + smtlibFile);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                //写入regex文件
+                                try {
+                                    Files.write(Path.of(regexFile), regexes.getBytes(StandardCharsets.UTF_8));
+                                    System.out.println("Regex文件已写入: " + regexFile);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                SMTCount += 1;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                     } else {
                         list.add("failed TYPE: " + bean.getAttackBeanList().get(i).getType() + "\t AttackString：" + bean.getAttackBeanList().get(i).getAttackStringFormat());
 //                        list2.add(bean.getAttackBeanList().get(i).getAttackStringFormatType());
                         list.add("patternType: " + bean.getAttackBeanList().get(i).getPatternType());
+
+
+                        try {
+                            int validateId = validateBeans.getData().indexOf(bean);
+                            int attackId = i;
+
+                            ArrayList<Pair<String, ArrayList<String>>> allSMTsAndRegexes = new ArrayList<>();
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib());
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib());
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
+
+                            int SMTCount = 0;
+
+                            // ArrayList<Pair<String, ArrayList<String>>> test = new ArrayList<>();
+                            // test.addAll(bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib());
+                            // test.addAll(bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib());
+                            // test.addAll(bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
+
+                            for (Pair<String, ArrayList<String>> pair : allSMTsAndRegexes) {
+                                // System.out.println(pair.getKey() + " : " + pair.getValue());
+                                String smtlib = "(set-logic QF_S)\n" +
+                                        "(declare-const x String)\n" +
+                                        "(assert (str.in.re x " + pair.getKey() + "))\n" +
+                                        "(check-sat)\n" +
+                                        "(get-model)";
+                                String regexes = "";
+                                for (int j = 0; j < pair.getValue().size() - 1; j++) {
+                                    regexes += pair.getValue().get(j) + "\n";
+                                }
+                                regexes += pair.getValue().get(pair.getValue().size() - 1);
+
+                                String smtlibFile = outputDir + "/" + regexId + "_" + validateId + "_" + attackId + "_" + SMTCount + ".smt2";
+                                String regexFile = outputDir + "/" + regexId + "_" + validateId + "_" + attackId + "_" + SMTCount + ".txt";
+                                //写入smtlib文件
+                                try {
+                                    Files.write(Path.of(smtlibFile), smtlib.getBytes(StandardCharsets.UTF_8));
+                                    System.out.println("SMTLIB文件已写入: " + smtlibFile);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                //写入regex文件
+                                try {
+                                    Files.write(Path.of(regexFile), regexes.getBytes(StandardCharsets.UTF_8));
+                                    System.out.println("Regex文件已写入: " + regexFile);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                SMTCount += 1;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 }
                 list2.add("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
@@ -130,9 +251,114 @@ public class Test {
                 for (int i = 0; i < bean.getAttackBeanList().size(); i++) {
                     if (bean.getAttackBeanList().get(i).isAttackSuccess()) {
                         list.add("success TYPE: " + bean.getAttackBeanList().get(i).getType() + "\t AttackString：" + bean.getAttackBeanList().get(i).getAttackStringFormat() + "\t patternType: " + bean.getAttackBeanList().get(i).getPatternType());
+
+
+                        try {
+                            int validateId = validateBeans.getData().indexOf(bean);
+                            int attackId = i;
+
+                            ArrayList<Pair<String, ArrayList<String>>> allSMTsAndRegexes = new ArrayList<>();
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib());
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib());
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
+
+                            int SMTCount = 0;
+
+                            // ArrayList<Pair<String, ArrayList<String>>> test = new ArrayList<>();
+                            // test.addAll(bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib());
+                            // test.addAll(bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib());
+                            // test.addAll(bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
+
+                            for (Pair<String, ArrayList<String>> pair : allSMTsAndRegexes) {
+                                // System.out.println(pair.getKey() + " : " + pair.getValue());
+                                String smtlib = "(set-logic QF_S)\n" +
+                                        "(declare-const x String)\n" +
+                                        "(assert (str.in.re x " + pair.getKey() + "))\n" +
+                                        "(check-sat)\n" +
+                                        "(get-model)";
+                                String regexes = "";
+                                for (int j = 0; j < pair.getValue().size() - 1; j++) {
+                                    regexes += pair.getValue().get(j) + "\n";
+                                }
+                                regexes += pair.getValue().get(pair.getValue().size() - 1);
+
+                                String smtlibFile = outputDir + "/" + regexId + "_" + validateId + "_" + attackId + "_" + SMTCount + ".smt2";
+                                String regexFile = outputDir + "/" + regexId + "_" + validateId + "_" + attackId + "_" + SMTCount + ".txt";
+                                //写入smtlib文件
+                                try {
+                                    Files.write(Path.of(smtlibFile), smtlib.getBytes(StandardCharsets.UTF_8));
+                                    System.out.println("SMTLIB文件已写入: " + smtlibFile);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                //写入regex文件
+                                try {
+                                    Files.write(Path.of(regexFile), regexes.getBytes(StandardCharsets.UTF_8));
+                                    System.out.println("Regex文件已写入: " + regexFile);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                SMTCount += 1;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                     } else {
                         list.add("failed TYPE:" + bean.getAttackBeanList().get(i).getType() + "\t AttackString：" + bean.getAttackBeanList().get(i).getAttackStringFormat() + "\t patternType: " + bean.getAttackBeanList().get(i).getPatternType());
 
+                        try {
+                            int validateId = validateBeans.getData().indexOf(bean);
+                            int attackId = i;
+
+                            ArrayList<Pair<String, ArrayList<String>>> allSMTsAndRegexes = new ArrayList<>();
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib());
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib());
+                            allSMTsAndRegexes.addAll(bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
+
+                            int SMTCount = 0;
+
+                            // ArrayList<Pair<String, ArrayList<String>>> test = new ArrayList<>();
+                            // test.addAll(bean.getAttackBeanList().get(i).getPrefix().getValue().toSmtLib());
+                            // test.addAll(bean.getAttackBeanList().get(i).getInfix().getValue().toSmtLib());
+                            // test.addAll(bean.getAttackBeanList().get(i).getSuffix().getValue().toSmtLib());
+
+                            for (Pair<String, ArrayList<String>> pair : allSMTsAndRegexes) {
+                                // System.out.println(pair.getKey() + " : " + pair.getValue());
+                                String smtlib = "(set-logic QF_S)\n" +
+                                        "(declare-const x String)\n" +
+                                        "(assert (str.in.re x " + pair.getKey() + "))\n" +
+                                        "(check-sat)\n" +
+                                        "(get-model)";
+                                String regexes = "";
+                                for (int j = 0; j < pair.getValue().size() - 1; j++) {
+                                    regexes += pair.getValue().get(j) + "\n";
+                                }
+                                regexes += pair.getValue().get(pair.getValue().size() - 1);
+
+                                String smtlibFile = outputDir + "/" + regexId + "_" + validateId + "_" + attackId + "_" + SMTCount + ".smt2";
+                                String regexFile = outputDir + "/" + regexId + "_" + validateId + "_" + attackId + "_" + SMTCount + ".txt";
+                                //写入smtlib文件
+                                try {
+                                    Files.write(Path.of(smtlibFile), smtlib.getBytes(StandardCharsets.UTF_8));
+                                    System.out.println("SMTLIB文件已写入: " + smtlibFile);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                //写入regex文件
+                                try {
+                                    Files.write(Path.of(regexFile), regexes.getBytes(StandardCharsets.UTF_8));
+                                    System.out.println("Regex文件已写入: " + regexFile);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                SMTCount += 1;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

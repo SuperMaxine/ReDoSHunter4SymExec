@@ -18,7 +18,7 @@ public class MultiThreadUtils<T, V> {
     public static int[] re;
 
     // 线程个数，如不赋值，默认为5
-    private int threadCount = 5;
+    private int threadCount = 70;
     // 具体业务任务
     private ITask<T, V> task;
     // 线程池管理器
