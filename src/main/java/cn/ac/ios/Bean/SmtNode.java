@@ -55,72 +55,52 @@ public class SmtNode{
         return sb.toString();
     }
 
-    public ArrayList<Pair<String, ArrayList<String>>> toSmtLib() throws TranslationException, FormatNotAvailableException {
-        ArrayList<Pair<String, ArrayList<String>>> result = new ArrayList<>();
+    public String toSmtLib() throws TranslationException, FormatNotAvailableException {
+        StringBuilder result = new StringBuilder();
 
-        StringBuilder sb = new StringBuilder();
-        ArrayList<String> sbRegexes = new ArrayList<>();
 
-        // 如果当前正则数组为1，直接生成正则对应的SMT-LIB表达式
-        if (intersectionRegexes.size() == 1) {
-            ;
-        } else {
-            // 如果当前正则数组大于1，生成交集表达式
-            // sb.append("(re.inter ");
-            ArrayList<String> smtlibForSingleRegexes = new ArrayList<>();
-            for (String regex : intersectionRegexes) {
-                if (regex.contains("＆") || regex.contains("～")) {
-                    return new ArrayList<>();
-                }
-                String regexsmt = Translator.INSTANCE.translate("cvc4", regex);
-                // String regexsmt = getSMTLIB(regex);
-                // 如果regexsmt中含有"re.inter"，return new ArrayList<>();
-                // if (regexsmt.contains("re.inter") || regexsmt.contains("re.comp")) {
-                //     return new ArrayList<>();
-                // }
-
-                // sb.append(regexsmt).append(" ");
-
-                smtlibForSingleRegexes.add(regexsmt);
+        ArrayList<String> smtlibForSingleRegexes = new ArrayList<>();
+        for (String regex : intersectionRegexes) {
+            String regexsmt = Translator.INSTANCE.translate("cvc4", regex);
+            if (regexsmt.equals("")) {
+                continue;
             }
-            // sb.append(")");
-            int nonEmptyCount = 0;
+            smtlibForSingleRegexes.add(regexsmt);
+        }
+
+        if (smtlibForSingleRegexes.isEmpty()) {
+            ; //保持result为空
+        }
+        else if (smtlibForSingleRegexes.size() == 1) {
+            result.append(smtlibForSingleRegexes.get(0)); // result为唯一非空正则
+        }
+        else {
+            result.append("(re.inter ");
             for (String regex : smtlibForSingleRegexes) {
                 if (!regex.equals("")) {
-                    nonEmptyCount++;
+                    result.append(regex).append(" ");
                 }
             }
-            if (nonEmptyCount == 0) {
-                return new ArrayList<>();
-            }
-            else if (nonEmptyCount == 1) {
-                smtlibForSingleRegexes.add("(str.to.re \"\")");
-            }
-
-            sb.append("(re.inter ");
-            for (String regex : smtlibForSingleRegexes) {
-                if (!regex.equals("")) {
-                    sb.append(regex).append(" ");
-                }
-            }
-            sb.append(")");
-
-            // sbRegexes.addAll(intersectionRegexes);
-            for (String r : intersectionRegexes) {
-                sbRegexes.add(r.replace("\n","\\n").replace("\r","\\r"));
-            }
-
-            result.add(new Pair<>(sb.toString(), sbRegexes));
+            result.append(")"); // result为非空正则的交集
         }
 
         if (next != null) {
-            ArrayList<Pair<String, ArrayList<String>>> nextStrings = next.toSmtLib();
-            result.addAll(nextStrings);
+            String next = this.next.toSmtLib();
+            if (!next.equals("")) {
+                if (!result.toString().equals("")) {
+                    return "(re.++ " + result.toString() + " " + next + ")";
+                } else {
+                    return next;
+                }
+            }
         }
 
-        return result;
+        // 1. 当前节点regex为空，next为空，返回空字符串
+        // 2. 当前节点regex为空，next不为空，返回next
+        // 3. 当前节点regex不为空，next为空，返回当前节点regex
+        // 4. 当前节点regex不为空，next不为空，返回当前节点regex和next的连接
+        return result.toString();
     }
-
 
     public static String getSMTLIB(String regex) {
         String result = "";
