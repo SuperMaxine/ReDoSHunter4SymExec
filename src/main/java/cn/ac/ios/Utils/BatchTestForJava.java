@@ -100,8 +100,8 @@ public class BatchTestForJava {
                 "import java.io.FileWriter;\n" +
                 "import java.io.IOException;\n" +
                 "import java.io.PrintWriter;\n" +
-                "import java.util.regex.Matcher;\n" +
-                "import java.util.regex.Pattern;\n" +
+                "import engine.regex.Matcher;\n" +
+                "import engine.regex.Pattern;\n" +
                 "\n";
 
         fileContent = fileContent +

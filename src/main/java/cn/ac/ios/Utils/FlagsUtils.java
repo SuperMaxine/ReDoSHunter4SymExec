@@ -5,8 +5,8 @@ import cn.ac.ios.TreeNode.TreeNode;
 import cn.ac.ios.Bean.RegexBean;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import engine.regex.Matcher;
+import engine.regex.Pattern;
 
 import static cn.ac.ios.TreeNode.Utils.createReDoSTree;
 import static cn.ac.ios.TreeNode.Utils.rewriteSlash;

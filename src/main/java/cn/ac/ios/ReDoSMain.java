@@ -18,8 +18,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import engine.regex.Pattern;
+import engine.regex.Matcher;
 
 import static cn.ac.ios.TreeNode.Utils.createReDoSTree;
 import static cn.ac.ios.Utils.Constant.EXTENDED_COUNTING;

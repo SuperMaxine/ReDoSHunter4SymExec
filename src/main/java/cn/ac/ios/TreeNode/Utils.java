@@ -18,8 +18,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import engine.regex.Matcher;
+import engine.regex.Pattern;
 
 import static cn.ac.ios.Utils.BracketUtils.isBracketsNode;
 import static cn.ac.ios.Utils.BracketUtils.simplifyLetters;

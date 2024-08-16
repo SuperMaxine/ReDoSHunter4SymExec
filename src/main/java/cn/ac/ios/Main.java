@@ -70,7 +70,8 @@ public class Main {
        //
        //  return;
 
-        getResult(0, "(a*)*.(\\w*)*");
+        // getResult(0, "(a*)*.(\\w*)*");
+        getResult(0, "(a*)*b");
     }
 
 

@@ -29,7 +29,7 @@
 
 package dk.brics.automaton;
 
-import java.util.regex.MatchResult;
+import engine.regex.MatchResult;
 
 /**
  * A tool that performs match operations on a given character sequence using

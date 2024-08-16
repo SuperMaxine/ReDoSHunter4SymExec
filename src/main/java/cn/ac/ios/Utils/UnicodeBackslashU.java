@@ -1,6 +1,6 @@
 package cn.ac.ios.Utils;
 
-import java.util.regex.Pattern;
+import engine.regex.Pattern;
 
 /**
  * 字符串中存在 反斜杠+u 开头 的Unicode字符。本类用于把那些Unicode字符串转换成汉字

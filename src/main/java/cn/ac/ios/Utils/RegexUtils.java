@@ -3,7 +3,7 @@ package cn.ac.ios.Utils;
 import cn.ac.ios.TreeNode.TreeNode;
 
 import java.util.*;
-import java.util.regex.Pattern;
+import engine.regex.Pattern;
 
 import static cn.ac.ios.TreeNode.Utils.createReDoSTree;
 import static cn.ac.ios.TreeNode.Utils.printTree;

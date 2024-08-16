@@ -1,7 +1,7 @@
 package cn.ac.ios.Utils;
 
 import java.util.*;
-import java.util.regex.Pattern;
+import engine.regex.Pattern;
 
 /**
  * @author pqc
